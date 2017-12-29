@@ -1,5 +1,5 @@
 ## Quellen
-<https://www.tutorialspoint.com/docker/index.htm>
+<https://www.tutorialspoint.com/docker/index.htm><br>
 <https://docs.docker.com/>
 
 ## Installation
@@ -24,10 +24,13 @@ The `run` command is used to mention that we want to create an instance of an im
     + `-p 80:80` für die Portzuweisung vom Image zum Host (HOST:CONTAINER)
     + `-d` für Detach (um nicht in den Container zu "gehen")
     + `--name=YOURNAME` benennt den Container
+    + `--rm` löscht den Container nach dem Durchlauf gleich wieder
     
-## Container Kram
+## Container
 + `docker ps` zeigt die aktuell laufenden Container
     + `-a` zeigt alle an
++ für die nachfolgenden Befehle kann die ContainerID oder der Name genutzt werden
+    + den Namen muss man bei der Erstellung mit `--name` angeben
 + `docker start ContainerID` startet Container. 
     + Mit `run` wird jedesmal ein neuer Container erstellt. Irgendwann wird es voll in der Liste. Daher lieber einen alten Container starten.
     + mit Parameter `--attach` geht man in gleich in den Container rein
@@ -44,6 +47,7 @@ The `run` command is used to mention that we want to create an instance of an im
 + `service docker stop` stoppt Docker Daemon
 
 ## Erstellen eines Docker Images
+### kurzer Überblick wie es geht
 + einfache Text Datei erstellen:
 
 Beispiel #1
@@ -71,6 +75,17 @@ CMD ["/hello"]
     + ImageName: der Name
     + TagName: Tagname
     + Dir: wo das Dockerfile (siehe oben) ist
+
+### Best Practice
++ kleine Images
++ Multi-Stage-Builds nutzen um Overhead zu vermeiden
++ mehrere Layer durch mehrere `RUN` vermeiden, lieber durch `&&` verbinden
++ tags sinnvoll nutzen, nicht nur immer `latest`
++ Daten nicht in Containers "writable layer" schreiben, sondern [volumes](https://docs.docker.com/engine/admin/volumes/volumes/) nutzen
+
+
+## Multi-Stage-Build
+<https://docs.docker.com/engine/userguide/eng-image/multistage-build/>
 
 ## Upload zum HUB
 + Online ein Repo erstellen
