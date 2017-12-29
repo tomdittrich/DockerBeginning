@@ -1,3 +1,8 @@
+## Quellen
+<https://www.tutorialspoint.com/docker/index.htm>
+<https://docs.docker.com/>
+
+## Installation
 + Installations Anleitung: <https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/>
 + immer als root/sudo, man kann auch die Rechte für non-root Nutzer einrichten
 + `docker run hello-world` zum testen ob die Umgebung läuft (lädt kleines HelloWorld runter)
@@ -12,10 +17,14 @@ The `run` command is used to mention that we want to create an instance of an im
 + `docker history ImageID` zeigt alle Befehle, welche gegen das Image liefen
 + Container sind Instanzen von Images
     + mit `run` wird jedesmal ein neuer Container erzeugt (!)
-    + `-it` für Interactive Mode (erzeugt Bash shell in Container)
     + `docker run –it <image> /bin/bash`
-    + `-p 80:80` für die Portzuweisung vom Image zum Host
-
+    + `-it` für Interactive Mode (erzeugt Bash shell in Container)
++ brauchbare Parameter:
+    + siehe: <https://docs.docker.com/engine/reference/run/>
+    + `-p 80:80` für die Portzuweisung vom Image zum Host (HOST:CONTAINER)
+    + `-d` für Detach (um nicht in den Container zu "gehen")
+    + `--name=YOURNAME` benennt den Container
+    
 ## Container Kram
 + `docker ps` zeigt die aktuell laufenden Container
     + `-a` zeigt alle an
@@ -26,7 +35,7 @@ The `run` command is used to mention that we want to create an instance of an im
 + `docker pause ContainerID` pausiert, `unpause` lässt weiterlaufen
 + `docker kill ContainerID` 
 + `docker rm ContainerID` löscht
-+ `docker top ContainerID` zeigt top-level Prozesse eines Containers
++ `docker top ContainerID` zeigt + baut aus bestehenden Image, hier "ubuntutop-level Prozesse eines Containers
 + `docker stats ContainerID` zeigt CPU und RAM Initialisierung
 + `docker attach ContainerID` verbindet sich mit Container
     + `CTRL+P+Q` um Container zu verlassne, ohne ihn zu schließen
@@ -76,5 +85,31 @@ CMD ["/hello"]
 
 ## Ports
 + Container Ports müssen zu Host Ports gemappt werden
++ nach dem Format `HOSTPORT:CONTAINERPORT`
 + Beispiel: `docker run -p 8080:8080 -p 50000:50000 jenkins`
+
+## Container verbinden
++ um nicht alles über Ports zu realisieren
++ `--link` ist eine Möglichkeit, ist aber "deprecated"
++ .... TBC ...
  
+## Netzwerk
++ Docker hat einen eigenen Netzwerkadapter auf dem Host: `docker0`
++ `docker network ls` listet alle Netzwerke im Docker Host
++ `docker network inspect <NETWORKNAME>` für mehr Details eines Netzwerks (z.B. `bridge`)
++ beim Start eines Containers, wird dieser mit `bridge` Adapter verbunden
+
+Eigenes Netzwerk erstellen:
++ `docker network create –-driver drivername name`
++ Beispiel: `docker network create –-driver bridge new_nw`
++ Container beim erstellen mit Netzwerk verbinden
+    + `docker run –it –-network=new_nw ubuntu:latest /bin/bash`
++ ... TBC ....
+
+## Docker Compose
++ [Installations Anleitung](https://docs.docker.com/compose/install/)
++ [Kommandos](https://docs.docker.com/compose/reference/)
++ lädt mehrere Container als einzelnen Service
++ Composer Files in YAML > `docker-compose.yml`
++ starten mit `docker-compose up`
+    + sucht im aktuellen Ordner nach einer compose YAML und führt sie aus
