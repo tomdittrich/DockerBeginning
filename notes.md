@@ -1,6 +1,7 @@
 ## Quellen
 <https://www.tutorialspoint.com/docker/index.htm><br>
-<https://docs.docker.com/>
+<https://docs.docker.com/><br>
+<http://container-solutions.com/understanding-volumes-docker/>
 
 ## Installation
 + Installations Anleitung: <https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/>
@@ -15,23 +16,24 @@ The `run` command is used to mention that we want to create an instance of an im
 + `docker rmi ImageID` entfernt ein Image, wobei ImageID die ID unter `docker images` ist
 + `docker inspect hello-world` für Details eines Images
 + `docker history ImageID` zeigt alle Befehle, welche gegen das Image liefen
+
+## Container
++ Container nutzt idR. den Kernel des Host-OS
 + Container sind Instanzen von Images
     + mit `run` wird jedesmal ein neuer Container erzeugt (!)
     + `docker run –it <image> /bin/bash`
     + `-it` für Interactive Mode (erzeugt Bash shell in Container)
-+ brauchbare Parameter:
++ `docker ps` zeigt die aktuell laufenden Container
+    + `-a` zeigt alle an
++ brauchbare run Parameter:
     + siehe: <https://docs.docker.com/engine/reference/run/>
     + `-p 80:80` für die Portzuweisung vom Image zum Host (HOST:CONTAINER)
     + `-d` für Detach (um nicht in den Container zu "gehen")
     + `--name=YOURNAME` benennt den Container
     + `--rm` löscht den Container nach dem Durchlauf gleich wieder
-    
-## Container
-+ `docker ps` zeigt die aktuell laufenden Container
-    + `-a` zeigt alle an
 + für die nachfolgenden Befehle kann die ContainerID oder der Name genutzt werden
     + den Namen muss man bei der Erstellung mit `--name` angeben
-+ `docker start ContainerID` startet Container. 
++ `docker start ContainerID` startet bereits existierenden Container (!= run)
     + Mit `run` wird jedesmal ein neuer Container erstellt. Irgendwann wird es voll in der Liste. Daher lieber einen alten Container starten.
     + mit Parameter `--attach` geht man in gleich in den Container rein
 + `docker stop ContainerID` stopt
@@ -97,6 +99,47 @@ CMD ["/hello"]
     + erstellt eine "kopie" vom Image. Der Name muss mit dem Repo übereinstimmen
 + 'docker push demousr/demorep:1.0' pusht es
 + `docker pull demousr/demorep:1.0` holt es wieder runter
+
+## Volumes
++ in früheren Versionen "data containers", jetzt werden Volumes genutzt
++ Volumes zum speichern von persistenten Daten
++ teilen von Daten zwischen Containern und zw. Host & Container
++ existiert als normales Verzeichnis auf Host System
++ `docker volume create --name my-volume`
++ `docker volume inspect my-volume` für Details über Volume inkl. Speicherort
+    + idR. unter `var/lib/docker/volumes`...
++ um mit einem Container zu verbinden:
+    + `docker run -v my-volume:/data hello-world`
+    + Volume existiert als `/data` Ordner im Container
++ wird Container gelöscht, bleiben die Daten im Volume erhalten
++ Volume kann auch beim Container Erstellen erzeugt werden:
+    + `docker run hello-word -v /data`
++ ein neues Volume kann auch mit einem Pfad auf dem Host verbunden werden:
+    + `docker run -v /home/tom/data:/data hello-world`
+    + geht nur mit `run` Befehl, nicht in Dockerfile
++ zum löschen `docker volume rm my-volume`
+    + für Übersicht der vorhandenen Volumes `volume ls`
+    + zum löschen aller nich genutzer Volumes: `docker volume rm $(docker volume ls -q)`
+
+### Volumes im Dockerfile
++ um Zugriffsrechte oder Daten/Konfigurations Dateien bei der Erstellung zu berücksichtigen
++ alles nach `VOLUME` wird auf das Volume nicht mehr angewendet
+```Docker
+FROM debian:wheezy
+RUN useradd foo
+VOLUME /data
+RUN touch /data/x
+RUN chown -R foo:foo /data
+```
++ Zeile 4&5 funktionieren so NICHT
++ folgendes Beispiel hingegen schon:
+```Docker
+FROM debian:wheezy
+RUN useradd foo
+RUN mkdir /data &amp;&amp; touch /data/x
+RUN chown -R foo:foo /data
+VOLUME /data
+```
 
 ## Ports
 + Container Ports müssen zu Host Ports gemappt werden
