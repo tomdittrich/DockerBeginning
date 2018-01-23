@@ -28,6 +28,7 @@ The `run` command is used to mention that we want to create an instance of an im
 + brauchbare run Parameter:
     + siehe: <https://docs.docker.com/engine/reference/run/>
     + `-p 80:80` für die Portzuweisung vom Image zum Host (HOST:CONTAINER)
+    + `-P` ordnet zufälligen Host-Ports alle EXPOSE Ports aus dem Dockerfile zu
     + `-d` für Detach (um nicht in den Container zu "gehen")
     + `--name=YOURNAME` benennt den Container
     + `--rm` löscht den Container nach dem Durchlauf gleich wieder
@@ -40,13 +41,14 @@ The `run` command is used to mention that we want to create an instance of an im
 + `docker pause ContainerID` pausiert, `unpause` lässt weiterlaufen
 + `docker kill ContainerID` 
 + `docker rm ContainerID` löscht
-+ `docker top ContainerID` zeigt + baut aus bestehenden Image, hier "ubuntutop-level Prozesse eines Containers
++ `docker top ContainerID` zeigt top-level Prozesse eines Containers
 + `docker stats ContainerID` zeigt CPU und RAM Initialisierung
 + `docker attach ContainerID` verbindet sich mit Container
     + `CTRL+P+Q` um Container zu verlassne, ohne ihn zu schließen
 + `docker exec -it <container_id_or_name> echo "Hello from container!"` führt Kommando innerhalb eines Containers aus
     + dieser muss aber laufen
 + `service docker stop` stoppt Docker Daemon
++ `docker port <container>` zeigt die zugewiesen Ports an
 
 ## Erstellen eines Docker Images
 ### kurzer Überblick wie es geht
@@ -97,7 +99,7 @@ CMD ["/hello"]
 + taggen für Repo Upload
     + `docker tag <ImageID> demousr/demorep:1.0`
     + erstellt eine "kopie" vom Image. Der Name muss mit dem Repo übereinstimmen
-+ 'docker push demousr/demorep:1.0' pusht es
++ `docker push demousr/demorep:1.0` pusht es
 + `docker pull demousr/demorep:1.0` holt es wieder runter
 
 ## Volumes
@@ -117,6 +119,7 @@ CMD ["/hello"]
 + ein neues Volume kann auch mit einem Pfad auf dem Host verbunden werden:
     + `docker run -v /home/tom/data:/data hello-world`
     + geht nur mit `run` Befehl, nicht in Dockerfile
+    + wird nicht unter `docker volume ls` angezeigt
 + zum löschen `docker volume rm my-volume`
     + für Übersicht der vorhandenen Volumes `volume ls`
     + zum löschen aller nich genutzer Volumes: `docker volume rm $(docker volume ls -q)`
@@ -171,3 +174,9 @@ Eigenes Netzwerk erstellen:
 + Composer Files in YAML > `docker-compose.yml`
 + starten mit `docker-compose up`
     + sucht im aktuellen Ordner nach einer compose YAML und führt sie aus
+
+## lose Sammlung
+Restricting networking. By restricting Docker networking so only linked containers can communicate you stop attackers with access to a container from being able to probe and compromise other containers. This can be achieved by using the --icc=false  and --iptables  flags when starting the Docker daemon
+
+[Security Cheat sheet](https://container-solutions.com/content/uploads/2015/06/15.06.15_DockerCheatSheet_A2.pdf)<br>
+[Running Secured Docker Registry 2.0](http://container-solutions.com/running-secured-docker-registry-2-0/)
