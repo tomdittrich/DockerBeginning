@@ -1,7 +1,8 @@
-## Quellen
-<https://www.tutorialspoint.com/docker/index.htm><br>
-<https://docs.docker.com/><br>
-<http://container-solutions.com/understanding-volumes-docker/>
+## Quellen & hilfreiche Links
+<https://www.tutorialspoint.com/docker/index.htm> <br>
+<https://docs.docker.com/> <br>
+<http://container-solutions.com/understanding-volumes-docker/> <br>
+[CLI Befehlsreferenz](https://docs.docker.com/engine/reference/commandline/cli/)
 
 ## Installation
 + Installations Anleitung: <https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/>
@@ -55,15 +56,27 @@ The `run` command is used to mention that we want to create an instance of an im
 + einfache Text Datei erstellen:
 
 Beispiel #1
-+ baut aus bestehenden Image, hier "ubuntu" (mit "latest" tag)
++ baut aus bestehenden Image, hier "alpine" Version 3.5
 ```docker
-#This is a sample Image
-FROM ubuntu 
-MAINTAINER demousr@gmail.com 
+# our base image
+FROM alpine:3.5
 
-RUN apt-get update 
-RUN apt-get install –y nginx 
-CMD [“echo”,”Image created”]
+# Install python and pip
+RUN apk add --update py2-pip
+
+# install Python modules needed by the Python app
+COPY requirements.txt /usr/src/app/
+RUN pip install --no-cache-dir -r /usr/src/app/requirements.txt
+
+# copy files required for the app to run
+COPY app.py /usr/src/app/
+COPY templates/index.html /usr/src/app/templates/
+
+# tell the port number the container should expose
+EXPOSE 5000
+
+# run the application
+CMD ["python", "/usr/src/app/app.py"]
 ```
 
 Beispiel #2
@@ -76,6 +89,7 @@ CMD ["/hello"]
 ```
 
 ### Befehle
++ [Dockerfile reference](https://docs.docker.com/engine/reference/builder/#run)
 + `FROM` nimmt bestehenden Container als Basis
 + `RUN` führt Befehle aus
     + jedes run erzeugt neuen Layer > mehr Größe
@@ -83,7 +97,7 @@ CMD ["/hello"]
 + `COPY source.txt /destination/` kopiert Dateien von aussen (Configs usw)
 + `EXPOSE 443` Port Nummern, welche vergeben werden müssen
     + mit `run -P` werden diese Ports beim Container-Bau automatisch eingerichtet
-+ `CMD echo "Hello world"` wird als default Befehl aufgerufen, wenn beim `run` eines Containers kein Befehl mitgegeben wird
++ `CMD echo "Hello world"` wird als default Befehl aufgerufen, wenn beim `run` eines Containers kein Befehl Parameter mitgegeben wird
     + bei mehreren CMDs im Dockerfile wird nur das letzte als Default genommen
     + bei exec Schreibweise wird der Parameter (ohne dem Entrypoint hinzugefügt):
 ```docker
@@ -102,7 +116,7 @@ CMD ["world"]
 
 ### Image bauen
 + `docker build  -t ImageName:TagName dir`
-    + `-t` für ein Tag
+    + `-t` optional für ein Tag
     + ImageName: der Name
     + TagName: Tagname
     + Dir: wo das Dockerfile liegt
@@ -113,6 +127,7 @@ CMD ["world"]
 + mehrere Layer durch mehrere `RUN` vermeiden, lieber durch `&&` verbinden
 + tags sinnvoll nutzen, nicht nur immer `latest`
 + Daten nicht in Containers "writable layer" schreiben, sondern [volumes](https://docs.docker.com/engine/admin/volumes/volumes/) nutzen
++ `sudo` vermeiden
 
 
 ## Multi-Stage-Build
@@ -175,6 +190,8 @@ VOLUME /data
 + Container Ports müssen zu Host Ports gemappt werden
 + nach dem Format `HOSTPORT:CONTAINERPORT`
 + Beispiel: `docker run -p 8080:8080 -p 50000:50000 jenkins`
++ `docker run -P jenkins` ordnet zufälligen Host-Ports alle EXPOSE Ports aus dem Dockerfile zu
++ `docker port <container>` zeigt die zugewiesen Ports an
 
 ## Container verbinden
 + um nicht alles über Ports zu realisieren
@@ -187,11 +204,12 @@ VOLUME /data
 + `docker network inspect <NETWORKNAME>` für mehr Details eines Netzwerks (z.B. `bridge`)
 + beim Start eines Containers, wird dieser mit `bridge` Adapter verbunden
 
-Eigenes Netzwerk erstellen:
+### Eigenes Netzwerk erstellen:
 + `docker network create –-driver drivername name`
-+ Beispiel: `docker network create –-driver bridge new_nw`
+    + Beispiel: `docker network create –-driver bridge new_nw`
 + Container beim erstellen mit Netzwerk verbinden
     + `docker run –it –-network=new_nw ubuntu:latest /bin/bash`
++ alle Container innerhalb des Netzwerks können miteinander kommunizieren
 + ... TBC ....
 
 ## Docker Compose
