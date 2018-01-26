@@ -55,7 +55,7 @@ The `run` command is used to mention that we want to create an instance of an im
 + einfache Text Datei erstellen:
 
 Beispiel #1
-+ baut aus bestehenden Image, hier "ubuntu"
++ baut aus bestehenden Image, hier "ubuntu" (mit "latest" tag)
 ```docker
 #This is a sample Image
 FROM ubuntu 
@@ -74,11 +74,38 @@ FROM scratch
 COPY hello /
 CMD ["/hello"]
 ```
+
+### Befehle
++ `FROM` nimmt bestehenden Container als Basis
++ `RUN` führt Befehle aus
+    + jedes run erzeugt neuen Layer > mehr Größe
+    + mit `&&` kann man Befehle koppeln > ist aber unübersichtlicher
++ `COPY source.txt /destination/` kopiert Dateien von aussen (Configs usw)
++ `EXPOSE 443` Port Nummern, welche vergeben werden müssen
+    + mit `run -P` werden diese Ports beim Container-Bau automatisch eingerichtet
++ `CMD echo "Hello world"` wird als default Befehl aufgerufen, wenn beim `run` eines Containers kein Befehl mitgegeben wird
+    + bei mehreren CMDs im Dockerfile wird nur das letzte als Default genommen
+    + bei exec Schreibweise wird der Parameter (ohne dem Entrypoint hinzugefügt):
+```docker
+ENTRYPOINT ["/bin/echo", "Hello"]  
+CMD ["world"] 
+```
++ 'ENTRYPOINT` führt Befehl beim Start/Run von Container auf
+    + falls Container selbst etwas starten soll (Apache Server)
+    + wird durch Befehl Parametet bei `run` NICHT abgesägt
+
+#### shell vs exec
++ shell: `CMD echo "Hello World"`
++ exec: `CMD ["/bin/echo", "Hello world"]`
+    + `["executable", "param1", "param2", ...]`
++ siehe <http://goinbigdata.com/docker-run-vs-cmd-vs-entrypoint/>
+
+### Image bauen
 + `docker build  -t ImageName:TagName dir`
     + `-t` für ein Tag
     + ImageName: der Name
     + TagName: Tagname
-    + Dir: wo das Dockerfile (siehe oben) ist
+    + Dir: wo das Dockerfile liegt
 
 ### Best Practice
 + kleine Images
