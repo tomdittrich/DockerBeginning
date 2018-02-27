@@ -48,6 +48,9 @@ The `run` command is used to mention that we want to create an instance of an im
     + `CTRL+P+Q` um Container zu verlassne, ohne ihn zu schließen
 + `docker exec -it <container_id_or_name> echo "Hello from container!"` führt Kommando innerhalb eines Containers aus
     + dieser muss aber laufen
++ `docker cp` kopiert Dateien in oder aus Container
+    + in Container hinein: `docker cp foo.txt mycontainer:/foo.txt` oder `docker cp src/. mycontainer:/target`
+    + aus Container heraus: `docker cp mycontainer:/foo.txt foo.txt`
 + `service docker stop` stoppt Docker Daemon
 + `docker port <container>` zeigt die zugewiesen Ports an
 
@@ -115,7 +118,7 @@ CMD ["world"]
 + siehe <http://goinbigdata.com/docker-run-vs-cmd-vs-entrypoint/>
 
 ### Image bauen
-+ `docker build  -t ImageName:TagName dir`
++ `docker build -t ImageName:TagName dir`
     + `-t` optional für ein Tag
     + ImageName: der Name
     + TagName: Tagname
