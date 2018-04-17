@@ -189,6 +189,21 @@ RUN chown -R foo:foo /data
 VOLUME /data
 ```
 
+## Zugriffsrechte und uid/gid
++ guter Artikel: <https://medium.com/@mccode/understanding-how-uid-and-gid-work-in-docker-containers-c37a01d01cf>
++ Container nutzt die uid/gid der Hosts Systems
+    + die Namen können aber verschieden sein
+    + z.B. heißt der Nutzer auf dem Host "tom"(1025), im Container aber "seppel"(1025) > gleiche uid bzw. Rechte/User
+    + Änderungen an den Rechten von uid 1025 auf dem Host wirken sich auf User im Container ebenfalls aus
+    + erwähntes Beispiel umgesetzt in Dockerfile:
+```Docker
+RUN useradd -r -u 1025 -g users seppel 
+USER seppel
+```
++ ein Container läuft standardmäßig mit der root uid
+    + Docker verhindert zum Großteil, dass root aus dem Container ausbrechen und im Host System wildern kann
++ bei sicherheitsrelevanten Containern sollten deshalb Nutzer mit Restriktionen angelegt werden
+
 ## Ports
 + Container Ports müssen zu Host Ports gemappt werden
 + nach dem Format `HOSTPORT:CONTAINERPORT`
